@@ -1,12 +1,14 @@
 import multiprocessing
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
+from getCodeFromGmailSnippet import getCodeFromGmail
 
-url = "https://reservation.frontdesksuite.ca/rcfs/nepeansportsplex/Home/Index?Culture=en&PageId=b0d362a1-ba36-42ae-b1e0-feefaf43fe4c&ShouldStartReserveTimeFlow=False&ButtonId=00000000-0000-0000-0000-000000000000"
-sport = "Badminton"
-
+url = "https://reservation.frontdesksuite.ca/rcfs/richcraftkanata/Home/Index?Culture=en&PageId=b3b9b36f-8401-466d-b4c4-19eb5547b43a&ShouldStartReserveTimeFlow=False&ButtonId=00000000-0000-0000-0000-000000000000"
+sport = "Badminton doubles - adult"
+# sport = "Lane swim"
 
 BookInfo = {
     0: {
@@ -18,15 +20,15 @@ BookInfo = {
 }
 PriorKnowledge = {
     0: {
-        "dayText": "Thursday March 3, 2023",
+        "dayText": "Thursday March 9, 2023",
         "hourText": "7:00 PM"
     },
     1: {
-        "dayText": "Thursday March 3, 2023",
+        "dayText": "Thursday March 9, 2023",
         "hourText": "8:00 PM"
     }
 }
-PriorKnowledgeIndex = 0
+
 
 
 def makeReservation(dayText, hourText, tel, email, text, bookTicketNumber, processID):
@@ -37,7 +39,7 @@ def makeReservation(dayText, hourText, tel, email, text, bookTicketNumber, proce
     #
     while isBooked is False:
         print(
-            f"Process {processID} will book {dayText}, {hourText} using contact info {tel}, {email}, {text} for {bookTicketNumber} ticket")
+            f"Process {processID} will book {sport} {dayText}, {hourText} using contact info {tel}, {email}, {text} for {bookTicketNumber} ticket")
         driver.get(url)
         sportDiv = driver.find_element(By.XPATH, f"//div[text()='{sport}']")
         sportDiv.click()
@@ -60,10 +62,29 @@ def makeReservation(dayText, hourText, tel, email, text, bookTicketNumber, proce
             driver.find_element(By.XPATH, "//input[@type='text']").send_keys(text)
 
             driver.find_element(By.XPATH, "//button[@id='submit-btn']").click()
-            # Final Confirmation
-            driver.find_element(By.XPATH, "//button[@id='submit-btn']").click()
-            isBooked = True
-        except:
+
+            #
+            code_list = []
+            while isBooked is False:
+                try:
+                    element = driver.find_element(By.XPATH, "//h1[text()='Confirmation']")
+                    print("Set isBooked to True")
+                    isBooked = True
+                except Exception as e:
+                    if not code_list:
+                        code_list = getCodeFromGmail()
+                    if not code_list:
+                        print("Gmail doesn't receive code yet...")
+                        continue
+                    else:
+                        print(f"Gmail code is {code_list}")
+                    code = code_list.pop(0)
+                    driver.find_element(By.XPATH, "//input[@type='number']").send_keys(code)
+                    driver.find_element(By.CLASS_NAME, "mdc-button").click()
+                    print("Submit Gmail Code")
+                    time.sleep(0.2)
+
+        except Exception as e:
             print(f"Process {processID}: Retrying....")
 
 
