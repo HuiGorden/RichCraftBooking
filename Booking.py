@@ -12,18 +12,18 @@ BookInfo = {
     0: {
         "tel": "*",
         "email": "*",
-        "text": "*",
+        "text": "Hui",
         "ticketNo": 2
     },
 }
 PriorKnowledge = {
     0: {
-        "dayText": "Thursday March 3, 2023",
-        "hourText": "7:00 PM"
+        "dayText": "Friday March 31, 2023",
+        "hourText": "7:45 PM"
     },
     1: {
-        "dayText": "Thursday March 3, 2023",
-        "hourText": "8:00 PM"
+        "dayText": "Friday March 31, 2023",
+        "hourText": "9:00 PM"
     }
 }
 PriorKnowledgeIndex = 0
